@@ -111,67 +111,78 @@ def add_task():
 def view_all():
     '''Reads the task from task.txt file and prints to the console in the 
         format of Output 2 presented in the task pdf (i.e. includes spacing
-        and labelling) 
+        and labelling)
     '''
-
-    for i, t in enumerate(task_list,1):
-        disp_str = f"Task: \t\t {t['title']}\n"
-        disp_str += f"Assigned to: \t\t {t['username']}\n"
-        disp_str += f"Date Assigned: \t\t {t['assigned_date'].strftime(DATETIME_STRING_FORMAT)}\n"
-        disp_str += f"Due Date: \t\t {t['due_date'].strftime(DATETIME_STRING_FORMAT)}\n"
-        disp_str += f"Task Description: \n {t['description']}\n"
-        print(f"\n[{i}] {disp_str}")
+    task_list = open("task.txt", "r+")
+    task_list_read = task_list.read()
+    if  task_list_read == "":
+        print("No Tasks Available")
+        task_list.close()
+    else:
+        for i, t in enumerate(task_list,1):
+            disp_str = f"Task: \t\t {t['title']}\n"
+            disp_str += f"Assigned to: \t\t {t['username']}\n"
+            disp_str += f"Date Assigned: \t\t {t['assigned_date'].strftime(DATETIME_STRING_FORMAT)}\n"
+            disp_str += f"Due Date: \t\t {t['due_date'].strftime(DATETIME_STRING_FORMAT)}\n"
+            disp_str += f"Task Description: \n {t['description']}\n"
+            print(f"\n[{i}] {disp_str}")
 
 def view_mine():
     '''Reads the task from task.txt file and prints to the console in the 
         format of Output 2 presented in the task pdf (i.e. includes spacing
         and labelling)
     '''
-    for i, t in enumerate(task_list,1):
-        if t['username'] == curr_user:
-            disp_str = f"Task: \t\t {t['title']}\n"
-            disp_str += f"Assigned to: \t\t {t['username']}\n"
-            disp_str += f"Date Assigned: \t\t {t['assigned_date'].strftime(DATETIME_STRING_FORMAT)}\n"
-            disp_str += f"Due Date: \t\t {t['due_date'].strftime(DATETIME_STRING_FORMAT)}\n"
-            disp_str += f"Task Description: \n {t['description']}"
-            disp_str += f"\nTask Completed: No"
-            print(f"\n[{i}] {disp_str}")
-    vm_end = False
-    while True:
-        if vm_end == True:
-            break
-        vm_option1 = input("\nView My Tasks Menu:\n[1] Select Task\n\
-[-1] Main Menu\nSelect An Option: ")
-        if vm_option1 == "-1":
-            print("Back To Main Menu\n");break
-        elif vm_option1 == "1":
-            while True:
-                invalid = False
-                if vm_end == True:
-                    break
-                try:vm_option2 = int(input("\nEnter Task Number: "))
-                except ValueError:invalid = True;print("Invalid Input")
-                if invalid == False:
-                    try:
-                        chosen = task_list[vm_option2 - 1]
-                        print(f"{str(chosen).replace(",","\n" and "'","")}")
-                    except IndexError:invalid = True;print("Invalid Input")
-                while invalid == False:
-                    vm_option3 = input("\nEdit Menu:\n[1] Mark Task As Completed\n\
-[2] Edit Task\n[-1] Main Menu\nSelect Option: ")
-                    if vm_option3 == "1":
-                        task_list[int(vm_option2)]
-                        print(f"Task {vm_option2} Marked As Completed")
-                    elif vm_option3 == "2":
-                        task_list.remove(task_list[int(vm_option2)])
-                        add_task();print("Task Edited");continue
-                    elif vm_option3 == "-1":
-                        print("Back To Main Menu")
-                        vm_end = True;break
-                    else:
-                        print("Invalid Input")
-        else:
-            print("Invalid Input")
+    task_list = open("task.txt", "r+")
+    task_list_read = task_list.read()
+    if  task_list_read == "":
+        print("No Tasks Available")
+        task_list.close()
+    else:
+        for i, t in enumerate(task_list,1):
+            if t['username'] == curr_user:
+                disp_str = f"Task: \t\t {t['title']}\n"
+                disp_str += f"Assigned to: \t\t {t['username']}\n"
+                disp_str += f"Date Assigned: \t\t {t['assigned_date'].strftime(DATETIME_STRING_FORMAT)}\n"
+                disp_str += f"Due Date: \t\t {t['due_date'].strftime(DATETIME_STRING_FORMAT)}\n"
+                disp_str += f"Task Description: \n {t['description']}"
+                disp_str += f"\nTask Completed: No"
+                print(f"\n[{i}] {disp_str}")
+        vm_end = False
+        while True:
+            if vm_end == True:
+                break
+            vm_option1 = input("\nView My Tasks Menu:\n[1] Select Task\n\
+    [-1] Main Menu\nSelect An Option: ")
+            if vm_option1 == "-1":
+                print("Back To Main Menu\n");break
+            elif vm_option1 == "1":
+                while True:
+                    invalid = False
+                    if vm_end == True:
+                        break
+                    try:vm_option2 = int(input("\nEnter Task Number: "))
+                    except ValueError:invalid = True;print("Invalid Input")
+                    if invalid == False:
+                        try:
+                            chosen = task_list[vm_option2 - 1]
+                            print(f"{str(chosen).replace(",","\n" and "'","")}")
+                        except IndexError:invalid = True;print("Invalid Input")
+                    while invalid == False:
+                        vm_option3 = input("\nEdit Menu:\n[1] Mark Task As Completed\n\
+    [2] Edit Task\n[-1] Main Menu\nSelect Option: ")
+                        if vm_option3 == "1":
+                            task_list[int(vm_option2)]
+                            print(f"Task {vm_option2} Marked As Completed")
+                        elif vm_option3 == "2":
+                            task_list.remove(task_list[int(vm_option2)])
+                            add_task();print("Task Edited");continue
+                        elif vm_option3 == "-1":
+                            print("Back To Main Menu")
+                            vm_end = True;break
+                        else:
+                            print("Invalid Input")
+            else:
+                print("Invalid Input")
 
 task_list = []
 for t_str in task_data:
