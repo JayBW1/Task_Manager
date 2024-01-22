@@ -2,13 +2,10 @@
 # 1. Use the following username and password to access the admin rights 
 # username: admin
 # password: password
-# 2. Ensure you open the whole folder for this task in VS Code otherwise the 
-# program will look in your root directory for the text files.
 
 #=====importing libraries===========
 import os
 from datetime import datetime, date
-
 DATETIME_STRING_FORMAT = "%Y-%m-%d"
 
 # Create tasks.txt if it doesn't exist
@@ -20,8 +17,59 @@ with open("tasks.txt", 'r') as task_file:
     task_data = task_file.read().split("\n")
     task_data = [t for t in task_data if t != ""]
 
+task_list = []
+for t_str in task_data:
+    curr_t = {}
+
+    # Split by semicolon and manually add each component
+    task_components = t_str.split(";")
+    curr_t['username'] = task_components[0]
+    curr_t['title'] = task_components[1]
+    curr_t['description'] = task_components[2]
+    curr_t['due_date'] = datetime.strptime(task_components[3], \
+DATETIME_STRING_FORMAT)
+    curr_t['assigned_date'] = datetime.strptime(task_components[4], \
+DATETIME_STRING_FORMAT)
+    curr_t['completed'] = True if task_components[5] == "Yes" else False
+
+    task_list.append(curr_t)
+
+#====Login Section====
+'''This code reads usernames and password from the user.txt file to 
+    allow a user to login.
+'''
+# If no user.txt file, write one with a default account
+if not os.path.exists("user.txt"):
+    with open("user.txt", "w") as default_file:
+        default_file.write("admin;password")
+
+# Read in user_data
+with open("user.txt", 'r') as user_file:
+    user_data = user_file.read().split("\n")
+
+# Convert to a dictionary
+username_password = {}
+for user in user_data:
+    username, password = user.split(';')
+    username_password[username] = password
+
+logged_in = False
+while not logged_in:
+    print("LOGIN")
+    curr_user = input("Username: ")
+    curr_pass = input("Password: ")
+    if curr_user not in username_password.keys():
+        print("User does not exist\n")
+        continue
+    elif username_password[curr_user] != curr_pass:
+        print("Wrong password\n")
+        continue
+    else:
+        print("Login Successful!\n")
+        logged_in = True
+        
 def reg_user():
-    # '''Add a new user to the user.txt file'''
+    '''Add a new user to the user.txt file'''
     # - Request input of a new username
     while True:
         new_username = input("New Username: ")
@@ -53,16 +101,16 @@ def reg_user():
     # - Otherwise you present a relevant message.
     else:
         print("Passwords do not match")
-            
+
 def add_task():
-    # '''Allow a user to add a new task to task.txt file
-    #     Prompt a user for the following: 
-    #      - A username of the person whom the task is assigned to,
-    #      - A title of a task,
-    #      - A description of the task and 
-    #      - the due date of the task.'''
+    '''Allow a user to add a new task to task.txt file
+        Prompt a user for the following: 
+         - A username of the person whom the task is assigned to,
+         - A title of a task,
+         - A description of the task and 
+         - the due date of the task.'''
     while True:
-        task_username = input("Name of person assigned to task: ")
+        task_username = input("\nName of person assigned to task: ")
         if task_username not in username_password.keys():
             print("User does not exist. Please enter a valid username")
             continue
@@ -73,7 +121,8 @@ def add_task():
     while True:
         try:
             task_due_date = input("Due date of task (YYYY-MM-DD): ")
-            due_date_time = datetime.strptime(task_due_date, DATETIME_STRING_FORMAT)
+            due_date_time = datetime.strptime(task_due_date, \
+DATETIME_STRING_FORMAT)
             break
 
         except ValueError:
@@ -106,53 +155,61 @@ def add_task():
             ]
             task_list_to_write.append(";".join(str_attrs))
         task_file.write("\n".join(task_list_to_write))
-    print("Task successfully added.")
-        
+    print("Task successfully added.\n")
+    
 def view_all():
     '''Reads the task from task.txt file and prints to the console in the 
         format of Output 2 presented in the task pdf (i.e. includes spacing
         and labelling)
     '''
-    task_list = open("task.txt", "r+")
-    task_list_read = task_list.read()
-    if  task_list_read == "":
-        print("No Tasks Available")
-        task_list.close()
+    task_file = open("tasks.txt", "r+")
+    task_file.seek(0,0)
+    task_file_read = task_file.read()
+    if  task_file_read == "":
+        print("No Tasks Available\n")
+        task_file.close()
     else:
-        for i, t in enumerate(task_list,1):
-            disp_str = f"Task: \t\t {t['title']}\n"
-            disp_str += f"Assigned to: \t\t {t['username']}\n"
-            disp_str += f"Date Assigned: \t\t {t['assigned_date'].strftime(DATETIME_STRING_FORMAT)}\n"
-            disp_str += f"Due Date: \t\t {t['due_date'].strftime(DATETIME_STRING_FORMAT)}\n"
-            disp_str += f"Task Description: \n {t['description']}\n"
+        print("\nAll Task List:")
+        for i, t in enumerate(task_list, 1):
+            disp_str = f"Task:\t\t{t['title']}\n"
+            disp_str += f"Assigned to:\t\t{t['username']}\n"
+            disp_str += f"Date Assigned:\t\t{t['assigned_date'].strftime\
+(DATETIME_STRING_FORMAT)}\n"
+            disp_str += f"Due Date:\t\t{t['due_date'].strftime\
+(DATETIME_STRING_FORMAT)}\n"
+            disp_str += f"Task Description:\n {t['description']}\n"
             print(f"\n[{i}] {disp_str}")
-
+            
 def view_mine():
     '''Reads the task from task.txt file and prints to the console in the 
         format of Output 2 presented in the task pdf (i.e. includes spacing
         and labelling)
     '''
-    task_list = open("task.txt", "r+")
-    task_list_read = task_list.read()
-    if  task_list_read == "":
-        print("No Tasks Available")
-        task_list.close()
+    task_file = open("tasks.txt", "r+")
+    task_file.seek(0,0)
+    task_file_read = task_file.read()
+    if  task_file_read == "":
+        print("No Tasks Available\n")
+        task_file.close()
     else:
-        for i, t in enumerate(task_list,1):
+        print("\nMy Task List:")
+        for i, t in enumerate(task_list, 1):
             if t['username'] == curr_user:
-                disp_str = f"Task: \t\t {t['title']}\n"
-                disp_str += f"Assigned to: \t\t {t['username']}\n"
-                disp_str += f"Date Assigned: \t\t {t['assigned_date'].strftime(DATETIME_STRING_FORMAT)}\n"
-                disp_str += f"Due Date: \t\t {t['due_date'].strftime(DATETIME_STRING_FORMAT)}\n"
-                disp_str += f"Task Description: \n {t['description']}"
-                disp_str += f"\nTask Completed: No"
-                print(f"\n[{i}] {disp_str}")
+                disp_str = f"Task:\t\t{t['title']}\n"
+                disp_str += f"Assigned to:\t\t{t['username']}\n"
+                disp_str += f"Date Assigned:\t\t{t['assigned_date'].strftime\
+(DATETIME_STRING_FORMAT)}\n"
+                disp_str += f"Due Date:\t\t{t['due_date'].strftime\
+(DATETIME_STRING_FORMAT)}\n"
+                disp_str += f"Task Description:\n {t['description']}\n"
+                print(f"\n[{i}]{disp_str}")
         vm_end = False
         while True:
             if vm_end == True:
+                task_file.close()
                 break
-            vm_option1 = input("\nView My Tasks Menu:\n[1] Select Task\n\
-    [-1] Main Menu\nSelect An Option: ")
+            vm_option1 = input("My Task Menu:\n[1] Select Task\n\
+[-1] Main Menu\nSelect An Option: ")
             if vm_option1 == "-1":
                 print("Back To Main Menu\n");break
             elif vm_option1 == "1":
@@ -160,111 +217,57 @@ def view_mine():
                     invalid = False
                     if vm_end == True:
                         break
-                    try:vm_option2 = int(input("\nEnter Task Number: "))
-                    except ValueError:invalid = True;print("Invalid Input")
+                    try:
+                        vm_option2 = int(input("\nEnter Task Number: "))
+                        vm_option2 = int(vm_option2)
+                    except ValueError:invalid = True;print("Invalid Value")
                     if invalid == False:
                         try:
-                            chosen = task_list[vm_option2 - 1]
-                            print(f"{str(chosen).replace(",","\n" and "'","")}")
-                        except IndexError:invalid = True;print("Invalid Input")
+                            chosen = task_file.read()[vm_option2 - 1]
+                            print(f"{str(chosen).replace\
+                                (",","\n" and "'","")}")
+                        except IndexError:
+                            invalid = True
+                            print("Invalid Index")
                     while invalid == False:
-                        vm_option3 = input("\nEdit Menu:\n[1] Mark Task As Completed\n\
-    [2] Edit Task\n[-1] Main Menu\nSelect Option: ")
+                        vm_option3 = input("\nEdit Menu:\n[1] \
+Mark Task As Completed\n[2] Edit Task\n[-1] Main Menu\nSelect Option: ")
                         if vm_option3 == "1":
-                            task_list[int(vm_option2)]
+                            task_file[int(vm_option2)]
                             print(f"Task {vm_option2} Marked As Completed")
                         elif vm_option3 == "2":
-                            task_list.remove(task_list[int(vm_option2)])
+                            task_file.read().replace(task_file[chosen])
                             add_task();print("Task Edited");continue
                         elif vm_option3 == "-1":
-                            print("Back To Main Menu")
+                            print("Back To Main Menu\n")
                             vm_end = True;break
                         else:
                             print("Invalid Input")
             else:
                 print("Invalid Input")
-
-task_list = []
-for t_str in task_data:
-    curr_t = {}
-
-    # Split by semicolon and manually add each component
-    task_components = t_str.split(";")
-    curr_t['username'] = task_components[0]
-    curr_t['title'] = task_components[1]
-    curr_t['description'] = task_components[2]
-    curr_t['due_date'] = datetime.strptime(task_components[3], DATETIME_STRING_FORMAT)
-    curr_t['assigned_date'] = datetime.strptime(task_components[4], DATETIME_STRING_FORMAT)
-    curr_t['completed'] = True if task_components[5] == "Yes" else False
-
-    task_list.append(curr_t)
-
-
-#====Login Section====
-'''This code reads usernames and password from the user.txt file to 
-    allow a user to login.
-'''
-# If no user.txt file, write one with a default account
-if not os.path.exists("user.txt"):
-    with open("user.txt", "w") as default_file:
-        default_file.write("admin;password")
-
-# Read in user_data
-with open("user.txt", 'r') as user_file:
-    user_data = user_file.read().split("\n")
-
-# Convert to a dictionary
-username_password = {}
-for user in user_data:
-    username, password = user.split(';')
-    username_password[username] = password
-
-logged_in = False
-while not logged_in:
-
-    print("LOGIN")
-    curr_user = input("Username: ")
-    curr_pass = input("Password: ")
-    if curr_user not in username_password.keys():
-        print("User does not exist\n")
-        continue
-    elif username_password[curr_user] != curr_pass:
-        print("Wrong password\n")
-        continue
-    else:
-        print("Login Successful!")
-        logged_in = True
-
-
 while True:
     # presenting the menu to the user and 
     # making sure that the user input is converted to lower case.
-    print()
     menu = input('''Select one of the following Options below:
-r   - Registering a user
-a   - Adding a task
-va  - View all tasks
-vm  - View my task
-gr  - Generate Reports
-ds  - Display statistics
-e   - Exit
+r - Registering a user
+a - Adding a task
+va - View all tasks
+vm - View my task
+ds - Display statistics
+e - Exit
 : ''').lower()
-    
-    if menu == 'r':
-        reg_user()
-        
-    elif menu == 'a':
-        add_task()
-        
-    elif menu == 'va':
-        view_all()
-        
-    elif menu == 'vm':
-        view_mine()
-                
+
+    if menu == 'r':reg_user()
+
+    elif menu == 'a':add_task()
+
+    elif menu == 'va':view_all()
+
+    elif menu == 'vm':view_mine()
+
     elif menu == 'ds' and curr_user == 'admin': 
-        '''If the user is an admin they can display statistics about number of users
-            and tasks.'''
+        '''If the user is an admin they can display statistics about number
+        of users and tasks.'''
         num_users = len(username_password.keys())
         num_tasks = len(task_list)
 
