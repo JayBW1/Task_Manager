@@ -221,6 +221,9 @@ def view_mine():
                         vm_option2 = int(input("\nEnter Task Number: "))
                         vm_option2 = int(vm_option2)
                     except ValueError:invalid = True;print("Invalid Value")
+                    if vm_option2 == -1:
+                        print("Back To Main Menu\n")
+                        vm_end = True;break
                     if invalid == False:
                         try:
                             chosen = task_file.read()[vm_option2 - 1]
