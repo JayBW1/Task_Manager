@@ -229,20 +229,19 @@ def view_mine():
                         task_file = open("tasks.txt", "r+")
                         task_file.seek(0,0)
                         task_file_read = task_file.read()
-                        try:
-                            for i, t in enumerate(task_list, 1):
-                            # if t['username'] == curr_user:
-                                disp_str = f"Task:\t\t{t['title']}\n"
-                                disp_str += f"Assigned to:\t\t{t['username']}\n"
-                                disp_str += f"Date Assigned:\t\t{t['assigned_date'].strftime\
-                                (DATETIME_STRING_FORMAT)}\n"
-                                disp_str += f"Due Date:\t\t{t['due_date'].strftime\
-                                (DATETIME_STRING_FORMAT)}\n"
-                                disp_str += f"Task Description:\n {t['description']}\n"
-                                print(f"\n[{i}]\n{task_list[vm_option2]}")
-                        except IndexError:
-                            print("Index Error");invalid = True
-                            
+                        print(task_list[vm_option2])
+                        # try:
+                        #     for i, task in enumerate(task_list, 1):
+                        #         disp_str = f"Task:\t\t{t['title']}\n"
+                        #         disp_str += f"Assigned to:\t\t{t['username']}\n"
+                        #         disp_str += f"Date Assigned:\t\t{t['assigned_date'].strftime\
+                        #         (DATETIME_STRING_FORMAT)}\n"
+                        #         disp_str += f"Due Date:\t\t{t['due_date'].strftime\
+                        #         (DATETIME_STRING_FORMAT)}\n"
+                        #         disp_str += f"Task Description:\n {t['description']}\n"
+                        #         print(f"\n[{i}]\n{task}")
+                        # except IndexError:
+                        #     print("Index Error");invalid = True
                     while invalid == False:
                         vm_option3 = input("\nEdit Menu:\n[1] \
 Mark Task As Completed\n[2] Edit Task\n[-1] Main Menu\nSelect Option: ")
@@ -267,6 +266,7 @@ r - Registering a user
 a - Adding a task
 va - View all tasks
 vm - View my task
+gr - generate reports
 ds - Display statistics
 e - Exit
 : ''').lower()
@@ -278,6 +278,8 @@ e - Exit
     elif menu == 'va':view_all()
 
     elif menu == 'vm':view_mine()
+    
+    elif menu == 'gr':pass
 
     elif menu == 'ds' and curr_user == 'admin': 
         '''If the user is an admin they can display statistics about number
