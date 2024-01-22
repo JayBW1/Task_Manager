@@ -152,6 +152,7 @@ DATETIME_STRING_FORMAT)
                 t['due_date'].strftime(DATETIME_STRING_FORMAT),
                 t['assigned_date'].strftime(DATETIME_STRING_FORMAT),
                 "Yes" if t['completed'] else "No"
+                
             ]
             task_list_to_write.append(";".join(str_attrs))
         task_file.write("\n".join(task_list_to_write))
@@ -178,7 +179,7 @@ def view_all():
             disp_str += f"Due Date:\t\t{t['due_date'].strftime\
 (DATETIME_STRING_FORMAT)}\n"
             disp_str += f"Task Description:\n {t['description']}\n"
-            print(f"\n[{i}] {disp_str}")
+            print(f"[{i}]\n{disp_str}")
             
 def view_mine():
     '''Reads the task from task.txt file and prints to the console in the 
@@ -192,7 +193,7 @@ def view_mine():
         print("No Tasks Available\n")
         task_file.close()
     else:
-        print("\nMy Task List:")
+        print("\nMy Task List:\n")
         for i, t in enumerate(task_list, 1):
             if t['username'] == curr_user:
                 disp_str = f"Task:\t\t{t['title']}\n"
@@ -202,7 +203,7 @@ def view_mine():
                 disp_str += f"Due Date:\t\t{t['due_date'].strftime\
 (DATETIME_STRING_FORMAT)}\n"
                 disp_str += f"Task Description:\n {t['description']}\n"
-                print(f"\n[{i}]{disp_str}")
+                print(f"[{i}]\n{disp_str}")
         vm_end = False
         while True:
             if vm_end == True:
@@ -219,19 +220,29 @@ def view_mine():
                         break
                     try:
                         vm_option2 = int(input("\nEnter Task Number: "))
-                        vm_option2 = int(vm_option2)
+                        vm_option2 = vm_option2 - 1
                     except ValueError:invalid = True;print("Invalid Value")
                     if vm_option2 == -1:
                         print("Back To Main Menu\n")
                         vm_end = True;break
-                    if invalid == False:
+                    elif invalid == False:
+                        task_file = open("tasks.txt", "r+")
+                        task_file.seek(0,0)
+                        task_file_read = task_file.read()
                         try:
-                            chosen = task_file.read()[vm_option2 - 1]
-                            print(f"{str(chosen).replace\
-                                (",","\n" and "'","")}")
+                            for i, t in enumerate(task_list, 1):
+                            # if t['username'] == curr_user:
+                                disp_str = f"Task:\t\t{t['title']}\n"
+                                disp_str += f"Assigned to:\t\t{t['username']}\n"
+                                disp_str += f"Date Assigned:\t\t{t['assigned_date'].strftime\
+                                (DATETIME_STRING_FORMAT)}\n"
+                                disp_str += f"Due Date:\t\t{t['due_date'].strftime\
+                                (DATETIME_STRING_FORMAT)}\n"
+                                disp_str += f"Task Description:\n {t['description']}\n"
+                                print(f"\n[{i}]\n{task_list[vm_option2]}")
                         except IndexError:
-                            invalid = True
-                            print("Invalid Index")
+                            print("Index Error");invalid = True
+                            
                     while invalid == False:
                         vm_option3 = input("\nEdit Menu:\n[1] \
 Mark Task As Completed\n[2] Edit Task\n[-1] Main Menu\nSelect Option: ")
@@ -239,7 +250,7 @@ Mark Task As Completed\n[2] Edit Task\n[-1] Main Menu\nSelect Option: ")
                             task_file[int(vm_option2)]
                             print(f"Task {vm_option2} Marked As Completed")
                         elif vm_option3 == "2":
-                            task_file.read().replace(task_file[chosen])
+                            task_file.read().replace(task_file.read()[vm_option2], "")
                             add_task();print("Task Edited");continue
                         elif vm_option3 == "-1":
                             print("Back To Main Menu\n")
