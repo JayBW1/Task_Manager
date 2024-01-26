@@ -41,7 +41,7 @@ DATETIME_STRING_FORMAT)
 if not os.path.exists("user.txt"):
     with open("user.txt", "w") as default_file:
         default_file.write("admin;password")
-        
+# checks for respective text files, creates one if none exist        
 if not os.path.exists("task_overview.txt"):
     with open("task_overview", "w") as task_overview:
         task_overview.write("Task Overview:\n")
@@ -142,7 +142,7 @@ DATETIME_STRING_FORMAT)
         "description": task_description,
         "due_date": due_date_time,
         "assigned_date": curr_date,
-        "completed": "No"
+        "completed": False
     }
     task_list.append(new_task)
     with open("tasks.txt", "w") as task_file:
@@ -166,7 +166,7 @@ def view_all():
         and labelling)
     '''
     task_file = open("tasks.txt", "r+");task_file.seek(0,0)
-    if  task_file.read() == "":
+    if  task_file.read() == "": # checks for tasks
         print("No Tasks Available\n");task_file.close()
     else:
         print("\nAll Task List:")
@@ -177,11 +177,11 @@ def view_all():
 (DATETIME_STRING_FORMAT)}\n"
             disp_str += f"Due Date:\t\t{t['due_date'].strftime\
 (DATETIME_STRING_FORMAT)}\n"
-            disp_str += f"Completed?\t\tNo\n"
+            disp_str += f"Completed?\t\t{t['completed']}\n"
             disp_str += f"Task Description:\n {t['description']}\n"
             print(f"[{i}]\n{disp_str}")
 
-file_rewrite = ""
+file_rewrite = "" # declared variable
 
 def view_mine():
     '''Reads the task from task.txt file and prints to the console in the 
@@ -189,10 +189,10 @@ def view_mine():
         and labelling)
     '''
     task_file = open("tasks.txt", "r+");task_file.seek(0,0)
-    if  task_file.read() == "":
+    if  task_file.read() == "": # check for tasks
         print("No Tasks Available\n");task_file.close()
     else:
-        my_task_list = ""
+        my_task_list = "" # declared variable
         print("\nMy Task List:\n")
         for i, t in enumerate(task_list, 1):
             if t['username'] == curr_user:
@@ -202,11 +202,11 @@ def view_mine():
     (DATETIME_STRING_FORMAT)}\n"
                 disp_str += f"Due Date:\t\t{t['due_date'].strftime\
     (DATETIME_STRING_FORMAT)}\n"
-                disp_str += f"Completed?\t\tNo\n"
+                disp_str += f"Completed:\t\tNo\n"
                 disp_str += f"Task Description:\n {t['description']}\n"
                 print(f"[{i}]\n{disp_str}")
                 my_task_list = my_task_list + f"\n[{i}]\n{disp_str}"
-        vm_end = False;current_entry = "my_task_menu"
+        current_entry = "my_task_menu" # splits loop into menus
         while True:
             if current_entry == "my_task_menu":
                 vm_option1 = input("My Task Menu:\n[1] Select Task\n\
@@ -218,8 +218,6 @@ def view_mine():
 
             elif current_entry == "select_task":
                 invalid = False # program loops if input is invalid
-                if vm_end == True:break
-
                 vm_option2 = input("\nEnter Task Number: ")
                 if vm_option2 == "-1":
                     print("Back To Main Menu\n")
@@ -230,29 +228,70 @@ def view_mine():
                     try: task_list[int(vm_option2) - 1]
                     except IndexError or ValueError:
                         print("Invalid Input");invalid = True
-                    if invalid == False:
-                        print("\nMy Task List:\n")
+                    if invalid == False: # else loop until valid input
                         my_task_list = my_task_list.split("\n")
                         for index, first_line in enumerate(my_task_list):
                             if first_line == f"[{int(vm_option2)}]":
-                                start = index
+                                start = index # find start index
                         for index2, last_line in enumerate(my_task_list):
                             if f"[{int(vm_option2) + 1}]" not in my_task_list:
-                                    end = -1
+                                end = -1 # if end index does not exist
                             elif last_line == f"[{int(vm_option2) + 1}]":
-                                end = index2
+                                end = index2 # find end index
+                        global task_to_edit, old_task
+                        task_to_edit = "";task_to_edit = list(task_to_edit)
+                        old_task = "";old_task = list(old_task)
+                        print("\nTask To Edit:")
+                        vm_option2 = int(vm_option2)
                         for line in my_task_list[start:end]:
+                            if line[:-1] == "":
+                                break # uniform output
                             print(line)
+                            line = line.replace("\t", "") # remove formatting
+                            if f"[{vm_option2}]" in line:
+                                continue # remove numbering for dict
+                            else:
+                                old_task.append(line)
+                                task_to_edit.append(line)
+                        task_description = "".join(old_task[-2 ::])
+                        del(old_task[-2 ::]);del(task_to_edit[-2 ::])
+                        old_task.append(task_description)
+                        task_to_edit.append(task_description)
+                        old_task_dict = dict(l.split(":") for l in old_task)
+                        task_to_edit_dict = dict(l.split(":") \
+                        for l in task_to_edit)
                         current_entry = "edit_task"
 
             elif current_entry == "edit_task":
                         vm_option3 = input("\nEdit Menu:\n[1] \
 Mark Task As Completed\n[2] Edit Task\n[-1] Main Menu\nSelect Option: ")
                         if vm_option3 == "1":
-                            if "Yes" in task_list:
+                            new_task_list = []
+                            if "Completed?\t\tYes" in task_to_edit:
+                                print(f"new task list:\n{new_task_list}")
                                 print("Task Already Marked As Completed")
-                            else:pass
-                                
+                            else:
+                                print(old_task_dict)
+                                task_list.remove(old_task_dict)
+                                print(old_task)
+                                with open("tasks.txt", "w") as task_file:
+                                    # new_task_list = []
+                                    # for t in task_to_edit:
+                                    #     str_attrs = [
+                                    #         t['username'],
+                                    #         t['title'],
+                                    #         t['description'],
+                                    #         t['due_date'].strftime(DATETIME_STRING_FORMAT),
+                                    #         t['assigned_date'].strftime(DATETIME_STRING_FORMAT),
+                                    #         "Yes" if t['completed'] else "No"
+                                    #     ]
+                                        # new_task_list.append(";".join(str_attrs))
+                                    task_to_edit[5] = "Yes"
+                                    new_task_list.append(task_list)
+                                    new_task_list.append(";".join(task_to_edit))
+                                    task_file.write("\n".join(new_task_list))
+                                print(f"new task list:\n{new_task_list}")
+                                print("Task Marked As Completed")
                         elif vm_option3 == "2":
                             task_list
                             add_task();print("Task Edited");continue
@@ -265,12 +304,10 @@ Mark Task As Completed\n[2] Edit Task\n[-1] Main Menu\nSelect Option: ")
                 print("Invalid Input\n")
                 
 def generate_reports():
-    with open("task_overview.txt", "a+") as task_overview:
+    with open("task_overview.txt", "r+") as task_overview:
         print(task_overview.read())
-        task_overview.close()
-    with open("user_overview.txt", "a+") as user_overview:
+    with open("user_overview.txt", "r+") as user_overview:
         print(user_overview.read())
-        user_overview.close()
 
 while True:
     # presenting the menu to the user and 
