@@ -33,6 +33,29 @@ def write_task_list():
         task_list.append(curr_t)
 write_task_list()
 
+def file_read_file_write():
+    with open("tasks.txt", "r+") as task_file:
+        task_file.seek(0,0)
+        new_task_list = []
+        str_attrs = []
+        for item_value in values_to_edit_list:
+            if str(item_value)[0] == " ":
+                item_value = item_value[1:]
+                str_attrs.append(item_value)
+            else:
+                str_attrs.append(item_value)
+        new_task_list.append(";".join(str_attrs))
+        task_lines = task_file.readlines()
+        task_to_replace = task_lines[vm_option2 - 1]
+        ready_task_list = []
+        for line in task_lines:
+            if line == task_to_replace:
+                ready_task_list.append(new_task_list)
+            else:
+                ready_task_list.append(line)
+    with open("tasks.txt", "w") as task_file:
+        task_file.write("\n".join(new_task_list))
+
 #====Login Section====
 '''This code reads usernames and password from the user.txt file to 
     allow a user to login.
@@ -198,31 +221,36 @@ def view_mine():
                 # removed strftime, item already formatted
                 disp_str += f"Date Assigned:\t\t{t['assigned_date']}\n"
                 disp_str += f"Due Date:\t\t{t['due_date']}\n"
-                disp_str += f"Completed?\t\t{"Yes" if t['completed'] else "No"}\n"
+                disp_str += f"Completed?\t\t\
+{"Yes" if t['completed'] else "No"}\n"
                 disp_str += f"Task Description:\n {t['description']}\n"
                 print(f"[{i}]\n{disp_str}")
                 my_task_list = my_task_list + f"\n[{i}]\n{disp_str}"
         current_entry = "my_task_menu" # splits loop into menus
         while True:
             if current_entry == "my_task_menu": # my task menu
-                vm_option1 = input("My Task Menu:\n[1] Select Task\n\
-[-1] Main Menu\nSelect An Option: ")
+                vm_option1 = input("My Task Menu:\n[-1] Main Menu\n\
+[1] Select Task\nSelect An Option: ")
                 if vm_option1 == "-1":
                     print("Back To Main Menu\n");break
                 elif vm_option1 == "1":
                     current_entry = "select_task"
+                else:
+                    print("Invalid Input\n")
             # select task menu
             elif current_entry == "select_task":
                 invalid = False # program loops if input is invalid
                 global vm_option2
-                vm_option2 = input("\nEnter Task Number: ")
+                vm_option2 = input("\n[-1] Main Menu\n[0] Back\n\
+Enter Task Number: ")
                 if vm_option2.isnumeric():pass
                 else:invalid = True;print("Invalid Input")
                 if vm_option2 == "-1":
                     print("Back To Main Menu\n");break
                 elif vm_option2 == "0":
-                    print("Invalid Index");continue
-                if invalid == False: # else loop until valid input
+                    print("Back To Previous Menu\n")
+                    current_entry = "my_task_menu"
+                elif invalid == False: # else loop until valid input
                     try: task_list[int(vm_option2) - 1]
                     except IndexError or ValueError:
                         print("Invalid Input");invalid = True
@@ -288,46 +316,78 @@ def view_mine():
                         current_entry = "edit_task"
             # edit task menu
             elif current_entry == "edit_task":
-                edited_task_list = task_list
-                vm_option3 = input("\nEdit Menu:\n[1] \
-Mark Task As Completed\n[2] Edit Task\n[-1] Main Menu\nSelect Option: ")
-                if vm_option3 == "1":
+                vm_option3 = input("\nEdit Menu:\n[-1] Main Menu\n\
+[0] Back\n[1] Mark Task As Completed\n[2] Edit Task\nSelect Option: ")
+                if vm_option3 == "-1":
+                    print("Back To Main Menu\n");break
+                elif vm_option3 == "0":
+                    print("Back To Previous Menu")
+                    current_entry = "select_task"
+                elif vm_option3 == "1":
                     if values_to_edit_list[5] == "Yes":
                         print("Task Already Marked As Completed")
                     else:
                         values_to_edit_list[5] = "Yes"
-                        with open("tasks.txt", "r+") as task_file:
-                            task_file.seek(0,0)
-                            new_task_list = []
-                            str_attrs = []
-                            for item_value in values_to_edit_list:
-                                if str(item_value)[0] == " ":
-                                    item_value = item_value[1:]
-                                    str_attrs.append(item_value)
-                                else:
-                                    str_attrs.append(item_value)
-                            new_task_list.append(";".join(str_attrs))
-                            task_lines = task_file.readlines()
-                            task_to_replace = task_lines[vm_option2 - 1]
-                            ready_task_list = []
-                            for line in task_lines:
-                                if line == task_to_replace:
-                                    ready_task_list.append(new_task_list)
-                                else:
-                                    ready_task_list.append(line)
-                        with open("tasks.txt", "w") as task_file:
-                            task_file.write("\n".join(new_task_list))
+                        file_read_file_write()
                         print("Task Marked As Completed")
                 elif vm_option3 == "2":
-                    add_task();print("Task Edited");continue
-                elif vm_option3 == "-1":
-                    print("Back To Main Menu\n")
-                    break
+                    if values_to_edit_list[5] == "Yes":
+                        print("Completed Tasks Cannot Be Edited")
+                    else:
+                        edit_option1 = input("\nEdit Task:\n[-1] Main Menu\
+[0] Back\n[1] Edit Assigned User\n[2] Edit Task Name\n\
+[3] Edit Task Due Date\n[4] Edit Task Description\nSelect Option: ")
+                        if edit_option1 == "-1":
+                            print("Back To Main Menu\n");break
+                        elif edit_option1 == "0":
+                            print("Back To Previous Menu\n")
+                            current_entry = "edit_task"
+                        elif edit_option1 == "1":
+                            task_user_input = input(f"\nPrevious Task User: \
+{values_to_edit_list[0]}\nEnter New Task User: ")
+                            with open("user.txt") as usrtx:
+                                if task_user_input in usrtx:
+                                    print(f"Task Assigned To \
+{task_user_input}")
+                                    values_to_edit_list[0] = task_user_input
+                                    file_read_file_write()
+                                else:
+                                    print("Invalid Username\n")
+                            
+                        elif edit_option1 == "2":
+                            task_name_input = input(f"\nPrevious Task Name: \
+{values_to_edit_list[1]}\nEnter New Task Name: ")
+                            values_to_edit_list[1] = task_name_input
+                            print(f"Task Name Changed To {task_name_input}")
+                            file_read_file_write()
+                        elif edit_option1 == "3":
+                            due_date_good = True
+                            try:
+                                task_due_date_input = input(f"\n\
+Previous Task Due Date: {values_to_edit_list[3]}\nEnter New Task Due Date: ")
+                                new_due_date_time = datetime.strptime\
+(task_due_date_input, DATETIME_STRING_FORMAT)
+                                break
+                            except ValueError:
+                                print("Invalid Datetime Format")
+                                due_date_good = False
+                            if due_date_good == True:
+                                values_to_edit_list[3] = new_due_date_time
+                                file_read_file_write()
+                        elif edit_option1 == "4":
+                            task_description_input = input(f"\n\
+Previous Task Description: {values_to_edit_list[2]}\n\
+Enter New Task Descrition: ")
+                            values_to_edit_list[2] = task_description_input
+                            file_read_file_write()
+                            print(f"Task Description Changed To:\n\
+{task_description_input}\n")
+                        else:print("Invalid Input")
                 else:
                     print("Invalid Input\n")
             else:
                 print("Invalid Input\n")
-                
+
 def generate_reports():
     with open("task_overview.txt", "r+") as task_overview:
         print(task_overview.read())
