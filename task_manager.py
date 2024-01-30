@@ -31,7 +31,14 @@ def write_task_list():
         curr_t['assigned_date'] = task_components[4]
         curr_t['completed'] = True if task_components[5] == "Yes" else False
         task_list.append(curr_t)
-write_task_list()
+        due_date = datetime.strptime(curr_t['due_date'], \
+            DATETIME_STRING_FORMAT)
+        if due_date < datetime.today() and task_components[5] == "No":
+            global overdue_task_count
+            overdue_task_count += 1
+            if task_components[0] == curr_user:
+                global user_overdue_task_count
+                user_overdue_task_count += 1
 
 def file_read_file_write():
     with open("tasks.txt", "r+") as task_file:
@@ -58,137 +65,7 @@ def file_read_file_write():
 
 #====Login Section====
 '''This code reads usernames and password from the user.txt file to 
-    allow a user to login.
-'''
-# If no user.txt file, write one with a default account
-if not os.path.exists("user.txt"):
-    with open("user.txt", "w") as default_file:
-        default_file.write("admin;password")
-# task overview vars
-if os.path.exists("task_overview.txt"):
-    with open("task_overview.txt", "r") as task_overview:
-        task_overview.seek(0, 0)
-        task_overview_read = task_overview.readlines()
-        for line in task_overview_read:
-            if "Number Of Tasks Generated: " in line:
-                line_search = line.split(" ")
-                print(line_search)
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        task_count = int(file_number)
-                    else:continue
-            if "Number Of Completed Tasks: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        complete_task_count = int(file_number)
-                    else:continue
-            if "Number Of Incomplete Tasks: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        incomplete_task_count = int(file_number)
-                    else:continue
-            if "Number Of Tasks Overdue: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        overdue_task_count = int(file_number)
-                    else:continue
-            if "Percentage Of Tasks Inomplete: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        task_complete_percentage = int(file_number)
-                    else:continue
-            if "Percentage Of Tasks Overdue: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        task_overdue_percentage = int(file_number)
-                    else:continue
-else:
-    task_count = 0
-    complete_task_count = 0
-    incomplete_task_count = task_count - complete_task_count
-    overdue_task_count = 0
-    try:task_complete_percentage = (incomplete_task_count / task_count) * 100
-    except ZeroDivisionError:task_complete_percentage = 0
-    try:task_overdue_percentage = (overdue_task_count / task_count) * 100
-    except ZeroDivisionError:task_overdue_percentage = 0
-# checks for respective text files, creates one if none exist
-    task_overview = open("task_overview.txt", "w+")
-    task_overview.write(f"Task Overview:\n\
-Number Of Tasks Generated:\t\t{task_count} \n\
-Number Of Completed Tasks:\t\t{complete_task_count} \n\
-Number Of Incomplete Tasks:\t\t{incomplete_task_count} \n\
-Number Of Tasks Overdue:\t\t{overdue_task_count} \n\
-Percentage Of Tasks Inomplete:\t\t{task_complete_percentage} % \n\
-Percentage Of Tasks Overdue:\t\t{task_overdue_percentage} %")
-    task_overview.close()
-
-# user overview vars
-if os.path.exists("user_overview.txt"):
-    with open("user_overview.txt", "r") as user_overview:
-        user_overview.seek(0, 0)
-        user_overview_read = user_overview.readlines()
-        for line in user_overview_read:
-            if "Number Of User Assigned Tasks: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        user_task_count = int(file_number)
-                    else:continue
-            if "Percentage Of Total Tasks Assigned To User: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        task_assigned_percentage = int(file_number)
-                    else:continue
-            if "Percentage Of Completed Tasks For User: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        completed_assigned_task_percentage = int(file_number)
-                    else:continue
-            if "Percentage Of Incomplete Tasks For User: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        incomplete_assigned_task_percentage = int(file_number)
-                    else:continue
-            if "Percentage Of Overdue Tasks For User: " in line:
-                line_search = line.split(" ")
-                for file_number in line_search:
-                    if file_number.isnumeric:
-                        overdue_assigned_task_percentage = int(file_number)
-                    else:continue
-else:
-    user_task_count = 0
-    user_complete_task_count = 0
-    user_incomplete_task_count = 0
-    user_overdue_task_count = 0
-    try:task_assigned_percentage = (user_task_count / task_count) * 100
-    except ZeroDivisionError:task_assigned_percentage = 0
-    try:completed_assigned_task_percentage = \
-            (user_complete_task_count / user_task_count) * 100
-    except ZeroDivisionError:completed_assigned_task_percentage = 0
-    try:incomplete_assigned_task_percentage = \
-        (user_incomplete_task_count / user_task_count) * 100
-    except ZeroDivisionError:incomplete_assigned_task_percentage = 0
-    try:overdue_assigned_task_percentage = \
-        (user_overdue_task_count / user_task_count) * 100
-    except ZeroDivisionError:overdue_assigned_task_percentage = 0
-    with open("user_overview.txt", "w+") as user_overview:
-        user_overview.write(f"User Overview:\n\
-Number Of User Assigned Tasks:\t\t\t{user_task_count} \n\
-Percentage Of Total Tasks Assigned To User:\t{task_assigned_percentage} % \n\
-Percentage Of Completed Tasks For User:\t\t\
-{completed_assigned_task_percentage} % \n\
-Percentage Of Incomplete Tasks For User:\t\
-{incomplete_assigned_task_percentage} % \n\
-Percentage Of Overdue Tasks For User:\t\t\
-{overdue_assigned_task_percentage} %") # add username
+    allow a user to login.'''
 
 # Read in user_data
 with open("user.txt", 'r') as user_file:
@@ -202,19 +79,172 @@ for user in user_data:
 
 logged_in = False
 while not logged_in:
+    global task_count, completed_task_count, incomplete_task_count, \
+overdue_task_count, task_completed_percentage, task_overdue_percentage
     print("LOGIN")
+    global curr_user
     curr_user = input("Username: ")
     curr_pass = input("Password: ")
     if curr_user not in username_password.keys():
-        print("User does not exist\n")
+        print("User Does Not Exist\n")
         continue
     elif username_password[curr_user] != curr_pass:
-        print("Wrong password\n")
+        print("Wrong Password\n")
         continue
     else:
         print("Login Successful!\n")
         logged_in = True
-        
+        # If no user.txt file, write one with a default account
+        if not os.path.exists("user.txt"):
+            with open("user.txt", "w") as default_file:
+                default_file.write("admin;password")
+        # task overview vars
+        if os.path.exists("task_overview.txt"):
+            with open("task_overview.txt", "r") as task_overview:
+                task_overview.seek(0, 0) # use file to update vars
+                task_overview_read = task_overview.readlines()
+                for line in task_overview_read:
+                    if "Number Of Tasks Generated: " in line:
+                        line_search = line.split(" ")
+                        print(line_search)
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                task_count = int(file_number)
+                            else:continue
+                    if "Number Of Completed Tasks: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                completed_task_count = int(file_number)
+                            else:continue
+                    if "Number Of Incompleted Tasks: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                incomplete_task_count = int(file_number)
+                            else:continue
+                    if "Number Of Tasks Overdue: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                overdue_task_count = int(file_number)
+                            else:continue
+                    if "Percentage Of Tasks Inomplete: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                task_completed_percentage = int(file_number)
+                            else:continue
+                    if "Percentage Of Tasks Overdue: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                task_overdue_percentage = int(file_number)
+                            else:continue
+        else: # if file does not exist
+            task_count = 0
+            completed_task_count = 0
+            incomplete_task_count = task_count - completed_task_count
+            overdue_task_count = 0
+            try:task_completed_percentage = \
+                (incomplete_task_count / task_count) * 100
+            except ZeroDivisionError:task_completed_percentage = 0
+            try:task_overdue_percentage = \
+                (overdue_task_count / task_count) * 100
+            except ZeroDivisionError:task_overdue_percentage = 0
+        def task_overview_update():
+            with open("task_overview.txt", "w+") as task_overview:
+                task_overview.write(f"Task Overview:\n\
+Number Of Tasks Generated:\t\t{task_count} \n\
+Number Of Completed Tasks:\t\t{completed_task_count} \n\
+Number Of Incomplete Tasks:\t\t{incomplete_task_count} \n\
+Number Of Tasks Overdue:\t\t{overdue_task_count} \n\
+Percentage Of Tasks Inomplete:\t\t{task_completed_percentage} % \n\
+Percentage Of Tasks Overdue:\t\t{task_overdue_percentage} %")
+        # list vars
+        global user_task_count, task_assigned_percentage, \
+completed_assigned_task_percentage, incomplete_assigned_task_percentage, \
+overdue_assigned_task_percentage
+        # user overview vars
+        if os.path.exists(f"{curr_user}_overview.txt"):
+            with open(f"{curr_user}_overview.txt", "r") as user_overview:
+                user_overview.seek(0, 0) # use file to update vars
+                user_overview_read = user_overview.readlines()
+                for line in user_overview_read:
+                    if "Number Of User Assigned Tasks: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                user_task_count = int(file_number)
+                            else:continue
+                    if "Percentage Of Total Tasks Assigned To User: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                task_assigned_percentage = int(file_number)
+                            else:continue
+                    if "Percentage Of Completed Tasks For User: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                completed_assigned_task_percentage = int\
+                                (file_number)
+                            else:continue
+                    if "Percentage Of Incomplete Tasks For User: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                incomplete_assigned_task_percentage = int\
+                                (file_number)
+                            else:continue
+                    if "Percentage Of Overdue Tasks For User: " in line:
+                        line_search = line.split(" ")
+                        for file_number in line_search:
+                            if file_number.isnumeric:
+                                overdue_assigned_task_percentage = int\
+                                (file_number)
+                            else:continue
+        else: # if file does not exist
+            user_task_count = 0
+            user_completed_task_count = 0
+            user_incomplete_task_count = 0
+            user_overdue_task_count = 0
+            try:task_assigned_percentage = (user_task_count / task_count) * \
+                100
+            except ZeroDivisionError:task_assigned_percentage = 0
+            try:completed_assigned_task_percentage = \
+                (user_completed_task_count / user_task_count) * 100
+            except ZeroDivisionError:completed_assigned_task_percentage = 0
+            try:incomplete_assigned_task_percentage = \
+                (user_incomplete_task_count / user_task_count) * 100
+            except ZeroDivisionError:incomplete_assigned_task_percentage = 0
+            try:overdue_assigned_task_percentage = \
+                (user_overdue_task_count / user_task_count) * 100
+            except ZeroDivisionError:overdue_assigned_task_percentage = 0
+            # func to update user_overview stats
+        def user_overview_update():
+            with open(f"{curr_user}_overview.txt", "w+") as user_overview:
+                user_overview.write(f"{curr_user} Overview:\n\
+Number Of User Assigned Tasks:\t\t\t{user_task_count} \n\
+Percentage Of Total Tasks Assigned To User:\t\
+{task_assigned_percentage} % \nPercentage Of Completed Tasks For User:\t\t\
+{completed_assigned_task_percentage} % \n\
+Percentage Of Incomplete Tasks For User:\t\
+{incomplete_assigned_task_percentage} % \n\
+Percentage Of Overdue Tasks For User:\t\t\
+{overdue_assigned_task_percentage} %") # add username
+        # generate reports func
+        def generate_reports():
+            print("\nReports Generated\n")
+            with open("task_overview.txt", "r+") as task_overview:
+                print(f"{task_overview.read()}\n")
+            with open(f"{curr_user}_overview.txt", "r+") as user_overview:
+                print(f"{user_overview.read()}\n")
+        # update report when changes are made
+        def report_update():
+            task_overview_update()
+            user_overview_update()
+
 def reg_user():
     '''Add a new user to the user.txt file'''
     # - Request input of a new username
@@ -223,10 +253,10 @@ def reg_user():
         usrtxt = open("user.txt")
         usrtxt = usrtxt.read()
         if new_username in usrtxt: # check if username already exists
-            print("Username already in use")
+            print("Username Already In Use")
             continue
         else:
-            print("Valid username")
+            print("Valid Username")
             break
     # - Request input of a new password
     new_password = input("New Password: ")
@@ -257,22 +287,22 @@ def add_task():
          - A description of the task and 
          - the due date of the task.'''
     while True:
-        task_username = input("\nName of person assigned to task: ")
+        task_username = input("\nName Of Person Assigned To Task: ")
         if task_username not in username_password.keys():
-            print("User does not exist. Please enter a valid username")
+            print("User Does Not Exist. Please Enter A Valid Username")
             continue
         else:
             break
-    task_title = input("Title of Task: ")
-    task_description = input("Description of Task: ")
+    task_title = input("Title Of Task: ")
+    task_description = input("Description Of Task: ")
     while True:
         try:
-            task_due_date = input("Due date of task (YYYY-MM-DD): ")
+            task_due_date = input("Due Date Of Task (YYYY-MM-DD): ")
             due_date_time = datetime.strptime(task_due_date, \
 DATETIME_STRING_FORMAT)
             break
         except ValueError:
-            print("Invalid datetime format. Please use the format specified")
+            print("Invalid Datetime Format. Please Use The Format Specified")
 
     # Then get the current date.
     curr_date = date.today()
@@ -300,9 +330,10 @@ DATETIME_STRING_FORMAT)
             ]
             task_list_to_write.append(";".join(str_attrs))
         task_file.write("\n".join(task_list_to_write))
-    global task_count
+    global task_count, user_task_count
     task_count += 1
-    print("Task successfully added.\n")
+    user_task_count += 1
+    print("Task Successfully Added.\n")
 
 def view_all():
     '''Reads the task from task.txt file and prints to the console in the 
@@ -329,7 +360,7 @@ def view_mine():
         format of Output 2 presented in the task pdf (i.e. includes spacing
         and labelling)
     '''
-    task_file = open("tasks.txt", "r+");task_file.seek(0,0)
+    task_file = open("tasks.txt", "r+");task_file.seek(0, 0)
     if  task_file.read() == "": # check for tasks
         print("No Tasks Available\n");task_file.close()
     else:
@@ -451,6 +482,10 @@ Enter Task Number: ")
                         values_to_edit_list[5] = "Yes"
                         file_read_file_write()
                         print("Task Marked As Completed")
+                        global completed_task_count, user_completed_task_count
+                        completed_task_count += 1
+                        user_completed_task_count += 1
+                        report_update()
                 elif vm_option3 == "2":
                     if values_to_edit_list[5] == "Yes":
                         print("Completed Tasks Cannot Be Edited")
@@ -509,25 +544,20 @@ Enter New Task Descrition: ")
             else:
                 print("Invalid Input\n")
 
-def generate_reports():
-    print("\nReports Generated\n")
-    with open("task_overview.txt", "r+") as task_overview:
-        print(f"{task_overview.read()}\n")
-    with open("user_overview.txt", "r+") as user_overview:
-        print(f"{user_overview.read()}\n")
 
 while True:
     write_task_list()
+    report_update()
     # presenting the menu to the user and 
     # making sure that the user input is converted to lower case.
-    menu = input('''Select one of the following Options below:
-[r]\t- Registering a user
-[a]\t- Adding a task
-[va]\t- View all tasks
-[vm]\t- View my task
-[gr]\t- Generate reports
-[ds]\t- Display statistics
-[e]\t- Exit
+    menu = input('''Select One Of The Following Options Below:
+[R]\t- Registering A User
+[A]\t- Adding A Task
+[VA]\t- View All Tasks
+[VM]\t- View My Task
+[GR]\t- Generate Reports
+[DS]\t- Display Statistics
+[E]\t- Exit
 : ''').lower()
 
     if menu == 'r':reg_user()
@@ -537,7 +567,7 @@ while True:
     elif menu == 'va':view_all()
 
     elif menu == 'vm':view_mine()
-    
+
     elif menu == 'gr':generate_reports()
 
     elif menu == 'ds' and curr_user == 'admin': 
@@ -547,8 +577,8 @@ while True:
         num_tasks = len(task_list)
 
         print("-----------------------------------")
-        print(f"Number of users: \t\t {num_users}")
-        print(f"Number of tasks: \t\t {num_tasks}")
+        print(f"Number Of Users: \t\t {num_users}")
+        print(f"Number Of Tasks: \t\t {num_tasks}")
         print("-----------------------------------")    
 
     elif menu == 'e':
@@ -556,4 +586,4 @@ while True:
         exit()
 
     else:
-        print("You have made a wrong choice, Please Try again")
+        print("You Have Made A Wrong Choice, Please Try Again\n")
