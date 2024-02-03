@@ -33,7 +33,6 @@ curr_user_list = []
 logged_in = False
 while not logged_in:
     print("LOGIN")
-    # global curr_user
     curr_user = input("Username: ")
     curr_pass = input("Password: ")
     if curr_user not in username_password.keys():
@@ -138,7 +137,7 @@ Percentage Of Tasks Overdue:\t\t {round(task_overdue_percentage)} %")
                         if file_number.isnumeric():
                             user_overview_value_list.append\
                                 (int(file_number))
-                elif "Percentage Of Complete Tasks For User:" in line:
+                elif "Percentage Of Completed Tasks For User:" in line:
                     line_search = str(line).split(" ")
                     for file_number in line_search:
                         if file_number.isnumeric():
@@ -166,8 +165,8 @@ Percentage Of Tasks Overdue:\t\t {round(task_overdue_percentage)} %")
             try: user_completed_task_count = \
             (user_task_count * 100) / completed_assigned_task_percentage
             except ZeroDivisionError: user_completed_task_count = 0
-            user_completed_task_count = round(user_completed_task_count)
-            user_overview_value_list.append(user_completed_task_count)
+            user_overview_value_list.append(round(user_completed_task_count))
+            user_completed_task_count = int(user_overview_value_list[5])
             # incomplete tasks
             incomplete_assigned_task_percentage = \
             int(user_overview_value_list[3])
@@ -178,8 +177,8 @@ Percentage Of Tasks Overdue:\t\t {round(task_overdue_percentage)} %")
             int(user_overview_value_list[4])
             user_overdue_task_count = \
             (overdue_assigned_task_percentage / 100) * user_task_count
-            user_overdue_task_count = round(user_overdue_task_count)
-            user_overview_value_list.append(user_overdue_task_count)
+            user_overview_value_list.append(round(user_overdue_task_count))
+            user_overdue_task_count = int(user_overview_value_list[6])
             #re-math for variable change
             try:task_assigned_percentage = (user_task_count / task_count) * \
                 100
@@ -263,7 +262,7 @@ def file_read_file_write():
     in original order, replacing task that was changed in the process"""
     with open("tasks.txt", "r") as task_file:
         task_file.seek(0,0)
-        new_task_list = [];str_attrs = []
+        new_task_list = []; str_attrs = []; write_list = []
         for item_value in values_to_edit_list:
             if str(item_value)[0] == " ": # remove formatting
                 item_value = item_value[1:]
@@ -272,15 +271,20 @@ def file_read_file_write():
                 str_attrs.append(item_value)
         new_task_list.append(";".join(str_attrs))
         task_lines = task_file.readlines()
-        task_to_replace = task_lines[vm_option2 - 1]
+        task_to_replace = task_lines[int(option_list[0]) - 1]
+        new_task_list = str(new_task_list)
+        new_task_list = new_task_list.replace("[" , "")
+        new_task_list = new_task_list.replace("]", "")
+        new_task_list = new_task_list.replace("'", "")
     with open("tasks.txt", "w") as task_file:
         task_file.write("") # clear file
         # for loop writes tasks to file in order, replacing changed task
         for line in task_lines:
-            if line == task_to_replace:
-                task_file.write("\n".join(new_task_list))
+            if line == task_to_replace: # task that has been edited
+                write_list.append(new_task_list)
             else:
-                task_file.write(f"\n{line}")
+                write_list.append(line)
+        task_file.write("\n".join(write_list))
 
 #====register user====
 def reg_user():
@@ -422,22 +426,18 @@ def view_mine():
             if current_entry == "my_task_menu": # my task menu
                 vm_option1 = input("My Task Menu:\n[-1] Main Menu\n\
 [1] Select Task\nSelect An Option: ")
-                if vm_option1 == "-1":
-                    print("Back To Main Menu\n");break
-                elif vm_option1 == "1":
-                    current_entry = "select_task"
-                else:
-                    print("Invalid Input\n")
+                if vm_option1 == "-1": print("Back To Main Menu\n"); break
+                elif vm_option1 == "1": current_entry = "select_task"
+                else: print("Invalid Input\n")
             # select task menu
             elif current_entry == "select_task":
                 invalid = False # program loops if input is invalid
-                global vm_option2
                 vm_option2 = input("\n[-1] Main Menu\n[0] Back\n\
 Enter Task Number: ")
-                if vm_option2.isnumeric():pass
+                if vm_option2.isnumeric(): pass
                 else:invalid = True;print("Invalid Input")
                 if vm_option2 == "-1":
-                    print("Back To Main Menu\n");break
+                    print("Back To Main Menu\n"); break
                 elif vm_option2 == "0":
                     print("Back To Previous Menu\n")
                     current_entry = "my_task_menu"
@@ -459,14 +459,11 @@ Enter Task Number: ")
                             elif last_line == f"[{int(vm_option2) + 1}]":
                                 end = index2 # find end index
                                 
-                        global task_to_edit, old_task
-                        task_to_edit = "";task_to_edit = list(task_to_edit)
-                        old_task = "";old_task = list(old_task)
-                        print("\nTask To Edit:")
-                        vm_option2 = int(vm_option2)
+                        task_to_edit = ""; task_to_edit = list(task_to_edit)
+                        old_task = ""; old_task = list(old_task)
+                        print("\nTask To Edit:"); vm_option2 = int(vm_option2)
                         for line in my_task_list[start:end]:
-                            if line[:-1] == "":
-                                break # uniform output
+                            if line[:-1] == "": break # uniform output
                             print(line)
                             # remove formatting
                             line = line.replace(" 00:00:00", "")
@@ -480,20 +477,14 @@ Enter Task Number: ")
                             else:
                                 old_task.append(line)
                                 task_to_edit.append(line)
-                         # join task description for dict
+                        # join task description for dict
                         task_description = "".join(old_task[-2 ::])
                         del(old_task[-2 ::]);del(task_to_edit[-2 ::])
                         old_task.append(task_description)
                         task_to_edit.append(task_description)
-                        global task_to_edit_dict, values_to_edit_list
+                        task_to_edit_dict = dict(l.split(":") \
+                        for l in task_to_edit) # list => dict
                         
-                        try:
-                            task_to_edit_dict = dict(l.split(":") \
-                            for l in task_to_edit) # list => dict
-                        except ValueError:
-                            task_to_edit_dict = task_to_edit_dict
-                        
-                        values_to_edit_list = [] # list for appending
                         x_dict = {};values = []
                         for value in task_to_edit_dict.values():
                             values.append(value)
@@ -514,15 +505,13 @@ Enter Task Number: ")
                             values_to_edit_list.append(x_dict)
                             break # one iteration
                         current_entry = "edit_task"
+                        option_list.append(vm_option2)
             # edit task menu
             elif current_entry == "edit_task":
                 vm_option3 = input("\nEdit Menu:\n[-1] Main Menu\n\
-[0] Back\n[1] Mark Task As Completed\n[2] Edit Task\nSelect Option: ")
+[1] Mark Task As Completed\n[2] Edit Task\nSelect Option: ")
                 if vm_option3 == "-1":
                     print("Back To Main Menu\n");break
-                elif vm_option3 == "0":
-                    print("Back To Previous Menu")
-                    current_entry = "select_task"
                 elif vm_option3 == "1":
                     if values_to_edit_list[5] == "Yes":
                         print("Task Already Marked As Completed")
@@ -531,15 +520,15 @@ Enter Task Number: ")
                         file_read_file_write()
                         print("Task Marked As Completed")
                         user_overview_value_list[5] += 1
-                        # ^ completed task count + 1
-                        task_overview_value_list[1] += 1
                         # ^ user completed task count + 1
+                        task_overview_value_list[1] += 1
+                        # ^ completed task count + 1
                         overview_update()
                 elif vm_option3 == "2":
                     if values_to_edit_list[5] == "Yes":
                         print("Completed Tasks Cannot Be Edited")
-                    else:
-                        edit_option1 = input("\nEdit Task:\n[-1] Main Menu\
+                    else: # edit option menu
+                        edit_option1 = input("\nEdit Task:\n[-1] Main Menu\n\
 [0] Back\n[1] Edit Assigned User\n[2] Edit Task Name\n\
 [3] Edit Task Due Date\n[4] Edit Task Description\nSelect Option: ")
                         if edit_option1 == "-1":
@@ -595,7 +584,7 @@ Enter New Task Descrition: ")
 
 #====main loop====
 while True:
-    task_list = []
+    option_list = []; task_list = []; values_to_edit_list = [] # clear lists
     write_task_list()
     overview_update()
     # presenting the menu to the user and 
