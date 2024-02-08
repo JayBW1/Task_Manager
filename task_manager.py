@@ -1,5 +1,4 @@
 # admin rights -> username: admin | password: password
-
 #====import libraries====
 import os
 from datetime import datetime, date
@@ -150,13 +149,15 @@ Number Of Tasks Generated:\t\t {task_overview_value[0]}"
     with open(f"{curr_user_list[0]}_overview.txt", "w+") as user_overview:
         user_overview.write(data)
     # all user overview
+    if replace_list != []:
+        old_data = str(replace_list[0])
+    else:
+        old_data = []
     if os.path.exists("user_overview.txt"):
         with open("user_overview.txt", "r") as all_overview:
             all_overview.seek(0, 0); read_all = all_overview.read()
             old_start = read_all.split("\n")[0 : 3]
             old_start = "\n".join(old_start)
-            old_data = str(replace_list[0])
-            
             if old_data in read_all:
                 with open("user_overview.txt", "w") as all_overview:
                     read_all = read_all.replace(old_data, data)
@@ -312,7 +313,7 @@ def reg_user():
 
 #====main loop====
 while True:
-    login(); report(); task_list = []; write_task_list() 
+    login(); task_list = []; write_task_list() 
     menu = input('''Select One Of The Following Options Below:
 [R]\t- Registering A User
 [A]\t- Adding A Task
@@ -333,16 +334,16 @@ while True:
                 new_username = input("New Username: ")
                 # check if username already exists
                 if new_username in username_password.keys():
-                    print("Username Already In Use"); continue
+                    print("Username Already In Use\n"); continue
                 else:
-                    print("Valid Username"); current_entry = "password"
+                    print("Valid Username\n"); current_entry = "password"
             elif current_entry == "password":
                 new_password = input("New Password: ")
                 confirm_password = input("Confirm Password: ")
                 if new_password == confirm_password:
-                    print("New User Added"); reg_user(); registered = True
+                    print("New User Added\n"); reg_user(); registered = True
                 else:
-                    print("Passwords Do Not Match")
+                    print("Passwords Do Not Match\n")
 
     elif menu == 'a':
         added_task = False; current_entry = "task_username"
