@@ -297,6 +297,7 @@ def add_task():
             ]
             task_list_to_write.append(";".join(str_attrs))
         task_file.write("\n".join(task_list_to_write))
+        report()
         task_overview_value[0] += 1 # task count + 1
         user_overview_value[0] += 1 # user task count + 1
 
