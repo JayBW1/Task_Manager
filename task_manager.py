@@ -145,7 +145,7 @@ def generate_reports(list1 : list) -> str:
     for t in list1:
         if t['completed'] == "True":
             complete_count += 1
-        if datetime.strptime(t['due_date'], DTF) < datetime.today():
+        if datetime.strptime(t['due_date'], DTF).date() < datetime.today():
             overdue_count += 1
             
     incomplete_count = task_count - complete_count
@@ -221,7 +221,8 @@ Number Of Tasks Generated:\t\t{task_count}\n\n"
                 user_dict['complete_count'] += 1
             if user_dict['username'] == t['username']\
                 and t['completed'] == 'False'\
-                and datetime.strptime(t['due_date'], DTF) < datetime.today():
+                and datetime.strptime(
+                    t['due_date'], DTF).date() < datetime.today():
                 user_dict['overdue_count'] += 1
                 
         all_data_str += format_user(user_dict)
@@ -316,7 +317,7 @@ while True:
                         print("Back To Main Menu\n"); break
 
                     elif vm_menu_1.isnumeric():
-                        if vm_menu_1 in align_dict.keys():
+                        if vm_menu_1 in align_dict.values():
                             print(f"Task {vm_menu_1} Selected\n")
                             
                             vm_menu_2 = input(
@@ -333,42 +334,48 @@ Enter: """)
                             elif vm_menu_2.isnumeric():
                                 new_task_list = write_task_list("tasks.txt")
                                 
-                                if new_task_list\
-                                    [int(align_dict[vm_menu_1]) - 1]\
+                                if new_task_list[int(vm_menu_1) - 1]\
                                         ['completed'] == True:
                                     print("Can't Edit Completed Tasks")
                                 
                                 else:
                                     if vm_menu_2 == "1":
-                                        new_task_list\
-                                        [int(align_dict[vm_menu_1]) - 1]\
-                                            ['completed'] = True
+                                        new_task_list[int(vm_menu_1) - 1]\
+                                        ['completed'] == True
 
                                         print(
                                     f"Task {vm_menu_1} Marked As Completed\n")
-                                        write_task_file(new_task_list, "tasks.txt")
+                                        write_task_file(
+                                            new_task_list, "tasks.txt")
                                         
                                     elif vm_menu_2 == "2":
                                         edit_user = input(
                                         "\nEnter New Assigned User: ")
                                         
-                                        new_task_list\
-                                            [int(align_dict[vm_menu_1]) - 1]\
-                                                ['username'] = edit_user
+                                        new_task_list[int(vm_menu_1) - 1]\
+                                            ['username'] = edit_user
                     
                                         print("Assigned User Edited\n")
-                                        write_task_file(new_task_list, "tasks.txt")
+                                        write_task_file(
+                                            new_task_list, "tasks.txt")
                                         
                                     elif vm_menu_2 == "3":
                                         edit_date = input(
                                         "\nEnter New Due Date (YYYY-MM-DD): ")
+                                        try:
+                                            edit_date = datetime.strptime(
+                                                edit_date, DTF).date()
+                                            done = True
+                                        except ValueError:
+                                            print("Invalid Date\n")
                                         
-                                        new_task_list\
-                                            [int(align_dict[vm_menu_1]) - 1]\
+                                        if done == True:
+                                            new_task_list[int(vm_menu_1) - 1]\
                                                 ['due_date'] = edit_date
-                    
-                                        print("Due Date Edited\n")
-                                        write_task_file(new_task_list, "tasks.txt")
+                        
+                                            print("Due Date Edited\n")
+                                            write_task_file(
+                                                new_task_list, "tasks.txt")
                                     
                                     else:
                                         print("Invalid Input\n")
