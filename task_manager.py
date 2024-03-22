@@ -107,8 +107,7 @@ def view_mine(list1: list) -> str:
                 disp_str += f"Assigned to:\t\t{t['username']}\n"
                 disp_str += f"Date Assigned:\t\t{t['assigned_date']}\n"
                 disp_str += f"Due Date:\t\t{t['due_date']}\n"
-                disp_str += f"Completed?\t\t{
-                    'Yes' if t['completed'] == 'True' else 'No'}"
+                disp_str += f"Completed?\t\t{'Yes' if t['completed'] == 'True' else 'No'}"
                 disp_str += f"\nTask Description:\n {t['description']}\n\n"
                 
         if disp_str == "":
@@ -129,8 +128,7 @@ def view_all(list1: list) -> str:
             disp_str += f"Assigned to:\t\t{t['username']}\n"
             disp_str += f"Date Assigned:\t\t{t['assigned_date']}\n"
             disp_str += f"Due Date:\t\t{t['due_date']}\n"
-            disp_str += f"Completed?\t\t{
-                'Yes' if t['completed'] == 'True' else 'No'}"
+            disp_str += f"Completed?\t\t{'Yes' if t['completed'] == 'True' else 'No'}"
             disp_str += f"\nTask Description:\n {t['description']}\n\n"
     return disp_str
 
@@ -145,7 +143,7 @@ def generate_reports(list1 : list) -> str:
     for t in list1:
         if t['completed'] == "True":
             complete_count += 1
-        if datetime.strptime(t['due_date'], DTF).date() < datetime.today():
+        if datetime.strptime(t['due_date'], DTF).date() < date.today():
             overdue_count += 1
             
     incomplete_count = task_count - complete_count
@@ -164,8 +162,7 @@ Number Of Completed Tasks:\t\t{complete_count}\n\
 Number Of Incomplete Tasks:\t\t{incomplete_count}\n\
 Number Of Tasks Overdue:\t\t{overdue_count}\n\
 Percentage Of Tasks Incomplete:\t\t{incomplete_percentage} %\n\
-Percentage Of Tasks Overdue:\t\t{overdue_percentage} %\n\n\
-"
+Percentage Of Tasks Overdue:\t\t{overdue_percentage} %\n\n"
 
     with open("task_overview.txt", "w+") as f:
         f.write(all_data_str)
@@ -199,7 +196,7 @@ Percentage Of Incomplete Tasks For User:\t{user_incomplete_percentage} %\n\
 Percentage Of Overdue Tasks For User:\t\t{user_overdue_percentage} %\n\n"
         return user_data_str
     
-    all_user_data_str = "User Overview:\n\
+    all_user_data_str = f"User Overview:\n\
 Number Of Registered Users:\t\t{len(username_password.keys())}\n\
 Number Of Tasks Generated:\t\t{task_count}\n\n"
 
@@ -222,7 +219,7 @@ Number Of Tasks Generated:\t\t{task_count}\n\n"
             if user_dict['username'] == t['username']\
                 and t['completed'] == 'False'\
                 and datetime.strptime(
-                    t['due_date'], DTF).date() < datetime.today():
+                    t['due_date'], DTF).date() < date.today():
                 user_dict['overdue_count'] += 1
                 
         all_data_str += format_user(user_dict)
@@ -297,10 +294,10 @@ while True:
                         print("Task Added\n"); break
 
         elif menu == "va":
-            print(f"\nView All Tasks:\n\n{view_all(write_task_list("tasks.txt"))}")
+            print(f"\nView All Tasks:\n\n{view_all(write_task_list('tasks.txt'))}")
 
         elif menu == "vm":
-            print(f"\nView My Tasks:\n\n{view_mine(write_task_list("tasks.txt"))}")
+            print(f"\nView All Tasks:\n\n{view_all(write_task_list('tasks.txt'))}")
             # align_list => align_dict
             align_dict = dict(str(l).split(";") for l in alignment_list)
             # align_dict used to replace task in task list
@@ -341,7 +338,7 @@ Enter: """)
                                 else:
                                     if vm_menu_2 == "1":
                                         new_task_list[int(vm_menu_1) - 1]\
-                                        ['completed'] == True
+                                        ['completed'] = True
 
                                         print(
                                     f"Task {vm_menu_1} Marked As Completed\n")
